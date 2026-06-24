@@ -204,6 +204,38 @@ FROM olist_order_payments;
 SELECT *
 FROM olist_order_items;
 
-SELECT price, freight_value, payment_value, payment_type, payment_sequential, payment_installments 
+SELECT product_category_name_english, SUM(payment_value) AS Revenue 
 FROM olist_order_items i
-RIGHT JOIN olist_order_payments p ON (p.order_id=i.order_id);
+LEFT JOIN olist_order_payments p ON (p.order_id=i.order_id)
+LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
+LEFT JOIN product_category_name_translation t ON (t.product_category_name=pr.product_category_name)
+GROUP BY product_category_name_english
+ORDER BY Revenue DESC
+LIMIT 10;
+
+SELECT * #i.order_id, price, freight_value,payment_sequential,payment_value
+FROM olist_order_items i
+LEFT JOIN olist_order_payments p ON (p.order_id=i.order_id)
+LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
+-- WHERE i.order_id="009ac365164f8e06f59d18a08045f6c4";
+WHERE i.order_id="0008288aa423d2a3f00fcb17cd7d8719";
+
+
+SELECT order_id, COUNT(*) as item_count
+FROM olist_order_items
+GROUP BY order_id
+HAVING COUNT(*) > 1
+LIMIT 5;
+
+SELECT product_category_name_english, SUM(total_payment) AS Revenue 
+FROM (
+    SELECT order_id, SUM(payment_value) AS total_payment
+    FROM olist_order_payments
+    GROUP BY order_id
+) AS pay
+LEFT JOIN olist_order_items i ON (pay.order_id=i.order_id)
+LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
+LEFT JOIN product_category_name_translation t ON (t.product_category_name=pr.product_category_name)
+GROUP BY product_category_name_english
+ORDER BY Revenue DESC
+LIMIT 10;
