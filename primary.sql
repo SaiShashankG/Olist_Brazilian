@@ -160,8 +160,8 @@ INSERT INTO product_category_name_translation (product_category_name, product_ca
 ('fashion_roupa_infanto_juvenil', 'fashion_childrens_clothes'),
 ('seguros_e_servicos', 'security_and_services');
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ######### Now we are done with the Loading of the data ##################
-
 /*
 olist_customers(customer_id, customer_unique_id, customer_zip_code_prefix, customer_city, customer_state)
 olist_geolocation(geolocation_zip_code_prefix, geolocation_lat, geolocation_lng, geolocation_city, geolocation_state)
@@ -178,7 +178,7 @@ product_category_name_translation(product_category_name, product_category_name_e
 ALTER TABLE olist_products 
     RENAME COLUMN product_name_lenght TO product_name_length,
     RENAME COLUMN product_description_lenght TO product_description_length;
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Q1) what's the average review score by product category?
 
 order_estimated_delivery_dateSELECT p.product_category_name, ROUND(AVG(r.review_score),2) AS Average_Rating
@@ -188,9 +188,11 @@ JOIN olist_products p ON (p.product_id=i.product_id)
 GROUP BY p.product_category_name
 ORDER BY Average_Rating DESC
 
+----------------------------------------------------------------------------------------------------------------
 ### Q2) What is the average delivery time (in days) by customer state, only for delivered orders?
 SELECT *
 FROM olist_orders;
+#Solution
 SELECT c.customer_state,
 ROUND(AVG(DATEDIFF(o.order_delivered_customer_date, o.order_purchase_timestamp)),2) AS Average_delivery_days
 FROM olist_orders o
@@ -198,13 +200,15 @@ LEFT JOIN olist_customers c ON (o.customer_id=c.customer_id)
 WHERE o.order_status='delivered'
 GROUP BY c.customer_state;
 
+-------------------------------------------------------------------------------------------------------------------
 ### Q3) What are the top 10 product categories by revenue?
 SELECT *
 FROM olist_order_payments;
 SELECT *
 FROM olist_order_items;
 
-SELECT product_category_name_english, SUM(payment_value) AS Revenue 
+#Solution
+SELECT product_category_name_english, SUM(price) AS Revenue 
 FROM olist_order_items i
 LEFT JOIN olist_order_payments p ON (p.order_id=i.order_id)
 LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
@@ -213,29 +217,45 @@ GROUP BY product_category_name_english
 ORDER BY Revenue DESC
 LIMIT 10;
 
-SELECT * #i.order_id, price, freight_value,payment_sequential,payment_value
+/*
+Revenue means, what has earned by selling the product.
+freght_value, is the shipping cost.
+payment_value, total amount paid by the customer, including tax, shipping cost(freight_value).
+Hence, to get Revenue of each product, we use 'price' not the 'payment_value'.
+*/
+
+/*
+Product Revenue ----> SUM(price)
+Total Order value ----> SUM(price+freight_value)
+Payment Collected ----> SUM(payment_value) 
+*/
+### Let's compare all three
+SELECT product_category_name_english, SUM(price) AS Revenue, SUM(freight_value) AS Total_freight,
+SUM(price+freight_value) AS Order_value, SUM(payment_value) AS Total_payment 
 FROM olist_order_items i
 LEFT JOIN olist_order_payments p ON (p.order_id=i.order_id)
-LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
--- WHERE i.order_id="009ac365164f8e06f59d18a08045f6c4";
-WHERE i.order_id="0008288aa423d2a3f00fcb17cd7d8719";
-
-
-SELECT order_id, COUNT(*) as item_count
-FROM olist_order_items
-GROUP BY order_id
-HAVING COUNT(*) > 1
-LIMIT 5;
-
-SELECT product_category_name_english, SUM(total_payment) AS Revenue 
-FROM (
-    SELECT order_id, SUM(payment_value) AS total_payment
-    FROM olist_order_payments
-    GROUP BY order_id
-) AS pay
-LEFT JOIN olist_order_items i ON (pay.order_id=i.order_id)
 LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
 LEFT JOIN product_category_name_translation t ON (t.product_category_name=pr.product_category_name)
 GROUP BY product_category_name_english
 ORDER BY Revenue DESC
 LIMIT 10;
+
+---------------------------------------------------------------------------------------------------------------------
+### Q4) Which sellers have the highest late delivery rate?
+SELECT *
+FROM olist_orders
+WHERE order_estimated_delivery_date<order_delivered_customer_date;
+
+#Solution
+SELECT seller_id, ROUND(SUM(CASE 
+WHEN order_delivered_customer_date>order_estimated_delivery_date THEN 1
+ELSE 0 END)*100/COUNT(*),2) AS Late_delivery_rate, COUNT(*) AS orders_count
+FROM olist_order_items it
+LEFT JOIN olist_orders o ON (o.order_id=it.order_id)
+GROUP BY seller_id
+HAVING COUNT(*)>=20
+ORDER BY Late_delivery_rate DESC;
+/*
+I excluded sellers with fewer than 20 orders,
+since their late delivery rate wouldn't be statistically reliable
+*/
