@@ -181,12 +181,12 @@ ALTER TABLE olist_products
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Q1) what's the average review score by product category?
 
-order_estimated_delivery_dateSELECT p.product_category_name, ROUND(AVG(r.review_score),2) AS Average_Rating
+SELECT p.product_category_name, ROUND(AVG(r.review_score),2) AS Average_Rating
 FROM olist_order_reviews r
 JOIN olist_order_items i ON (r.order_id=i.order_id)
 JOIN olist_products p ON (p.product_id=i.product_id)
 GROUP BY p.product_category_name
-ORDER BY Average_Rating DESC
+ORDER BY Average_Rating DESC;
 
 ----------------------------------------------------------------------------------------------------------------
 ### Q2) What is the average delivery time (in days) by customer state, only for delivered orders?
@@ -199,7 +199,36 @@ FROM olist_orders o
 LEFT JOIN olist_customers c ON (o.customer_id=c.customer_id)
 WHERE o.order_status='delivered'
 GROUP BY c.customer_state;
-
+/*RESULT:
+State - Late Delivery Average(Days)
+RJ	15.24
+SP	8.70
+MG	11.94
+PR	11.94
+GO	15.54
+BA	19.28
+AL	24.50
+MS	15.54
+CE	21.20
+DF	12.90
+RS	15.25
+PE	18.40
+SC	14.90
+ES	15.72
+MA	21.51
+PA	23.73
+MT	18.00
+PB	20.39
+AM	26.36
+AP	27.18
+PI	19.39
+TO	17.60
+RO	19.28
+RN	19.22
+SE	21.46
+AC	21.00
+RR	29.34
+*/
 -------------------------------------------------------------------------------------------------------------------
 ### Q3) What are the top 10 product categories by revenue?
 SELECT *
@@ -216,6 +245,18 @@ LEFT JOIN product_category_name_translation t ON (t.product_category_name=pr.pro
 GROUP BY product_category_name_english
 ORDER BY Revenue DESC
 LIMIT 10;
+/*RESULT: Category of product - Revenue
+health_beauty	1297490.77
+watches_gifts	1253143.30
+bed_bath_table	1092551.02
+sports_leisure	1023996.34
+computers_accessories	942277.57
+furniture_decor	765093.89
+housewares	666587.00
+cool_stuff	662309.49
+auto	616752.51
+garden_tools	518217.54
+*/
 
 /*
 Revenue means, what has earned by selling the product.
@@ -257,5 +298,39 @@ HAVING COUNT(*)>=20
 ORDER BY Late_delivery_rate DESC;
 /*
 I excluded sellers with fewer than 20 orders,
-since their late delivery rate wouldn't be statistically reliable
+since their late delivery rate wouldn't be statistically reliable.
+Buy observing the distribution, histogram(in the python notebook file), we observe that,
+it is Highly Right Skewed, so it not correct to take mean, so, i consider sellers with orders greater than or equal to 20. 
 */
+/*RESULT: Seller id - Late delivery rate - Number of Orders
+2709af9587499e95e803a6498a5a56e9	48.94	47
+f76a3b1349b6df1ee875d1f3fa4340f0	37.50	24
+973f21788dfab357250f69a8dcb7ddee	33.33	21
+ede0c03645598cdfc63ca8237acbe73d	32.00	50
+821fb029fc6e495ca4f08a35d51e53a5	31.03	29
+*/
+
+------------------------------------------------------------------------------------------------------------------------------
+### Q5) Customer repeat purchase rate
+SELECT COUNT(DISTINCT customer_id), COUNT(DISTINCT customer_unique_id)
+FROM olist_customers LIMIT 5;
+/*
+Repeat purchase: the customer placing more than one order overall (any products)?
+*/
+ #Solution
+With percent_tab AS (
+    SELECT customer_unique_id,
+    CASE WHEN COUNT(DISTINCT o.order_id)>1 THEN 1
+    ELSE 0 END AS repeated
+    FROM olist_customers cu
+    LEFT JOIN olist_orders o ON (o.customer_id=cu.customer_id)
+    LEFT JOIN olist_order_items it ON (it.order_id=o.order_id)
+    GROUP BY customer_unique_id
+)
+SELECT  SUM(repeated)*100/COUNT(*) AS customer_repeat_percentage
+FROM percent_tab;
+/* RESULT:
+That means, 3.11% of the customers purchase again more than once.
+*/
+-------------------------------------------------------------------------------------------------------------------------------------
+### Q6) Revenue trend month over month
