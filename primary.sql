@@ -334,3 +334,57 @@ That means, 3.11% of the customers purchase again more than once.
 */
 -------------------------------------------------------------------------------------------------------------------------------------
 ### Q6) Revenue trend month over month
+
+/*
+"Revenue is grouped by order_purchase_timestamp,
+assuming payment occurs at the time of ordering 
+(consistent with standard online checkout flow).
+Delivery date was not used since it would misrepresent
+the period revenue was actually generated."
+*/
+# Solution
+SELECT DATE_FORMAT(order_purchase_timestamp, '%Y-%m') AS Months, COALESCE(SUM(price),0) AS Revenue
+FROM olist_orders o
+LEFT JOIN olist_order_items it ON (it.order_id=o.order_id)
+GROUP BY DATE_FORMAT(order_purchase_timestamp, '%Y-%m')
+ORDER BY Months;
+
+SELECT DATE_FORMAT(order_purchase_timestamp, '%Y-%m') AS Months, SUM(price) AS Revenue
+FROM olist_orders o
+JOIN olist_order_items it ON (it.order_id=o.order_id)
+GROUP BY DATE_FORMAT(order_purchase_timestamp, '%Y-%m')
+ORDER BY Months;
+-----------------------------------------------------------------------------------------------------------------------------
+/*
+Phase 3 — Python Analysis (Week 2-3)
+
+Pull data from MySQL into pandas using mysql-connector or sqlalchemy
+Statistical analysis: correlation between delivery time and review score
+Apply regression! — does delivery time predict customer satisfaction? (Direct application of Montgomery!)
+Segment analysis by region, category, payment type
+
+Phase 4 — Forecasting (Week 3-4)
+
+Monthly revenue forecasting using Prophet or statsmodels (direct application of what you're learning now!)
+This connects beautifully to your Teleflex experience
+
+Phase 5 — Visualization
+
+Python charts (matplotlib/seaborn) or a simple Power BI dashboard if you want to learn that too
+*/
+
+------------------------------------------------------------------------------------------------------------------------------------
+### Q) Regression Equation for: Does delivery time predict customer review scores?
+
+SELECT o.order_id, DATEDIFF(order_delivered_customer_date,order_purchase_timestamp)
+AS delivery_days, re.review_score
+FROM olist_orders o
+JOIN olist_order_reviews re ON (o.order_id=re.order_id)
+WHERE order_status='delivered' AND order_delivered_customer_date IS NOT NULL
+ORDER BY delivery_days DESC;
+
+SELECT review_score, CASE 
+WHEN order_delivered_customer_date>order_estimated_delivery_date THEN 1
+ELSE 0 END AS late_status
+FROM olist_orders
+LEFT JOIN  olist_order_reviews USING (order_id)
