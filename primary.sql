@@ -387,7 +387,7 @@ SELECT review_score, CASE
 WHEN order_delivered_customer_date>order_estimated_delivery_date THEN 1
 ELSE 0 END AS late_status
 FROM olist_orders
-LEFT JOIN  olist_order_reviews USING (order_id)
+LEFT JOIN  olist_order_reviews USING (order_id);
 =====================================================================================================
 /*
 1. Delivery & Logistics Optimization
@@ -456,3 +456,18 @@ handling multiple payment rows per order (since an order can be split across pay
 and creating Seaborn boxplots to show distribution variations.
 */
 =================================================================================================================
+
+## Fetching data for Time Series Analysis
+SELECT DATE_FORMAT(order_purchase_timestamp,'%Y-%m-01') AS ds,
+SUM(price) AS y
+FROM olist_orders o
+JOIN olist_order_items it ON (it.order_id=o.order_id)
+WHERE order_status!='canceled' 
+GROUP BY DATE_FORMAT(order_purchase_timestamp,'%Y-%m-01')
+ORDER BY ds;
+
+## Checking weather the months 2016-09 and 2018-09 (Extreme months) are complete or incomplete months
+SELECT MIN(order_purchase_timestamp) AS first_date,
+MAX(order_purchase_timestamp) AS last_date
+FROM olist_orders
+WHERE order_status!='canceled';
