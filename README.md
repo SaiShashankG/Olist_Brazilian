@@ -30,6 +30,7 @@ regression analysis, and forecasting.
 ---
 
 ## 🗂️ Project Structure
+```
 olist-ecommerce-analytics/
 │
 ├── sql/
@@ -51,6 +52,7 @@ olist-ecommerce-analytics/
 │
 ├── requirements.txt
 └── README.md
+```
 ---
 
 ## 🔍 Key Findings
@@ -181,7 +183,7 @@ engine = create_engine(
 ---
 
 ## 🔗 Related Projects
-- [Teleflex Medical Devices Forecast Accuracy Assessment](#) 
+- [Teleflex Medical Devices Forecast Accuracy Assessment](https://github.com/SaiShashankG/Forecast-Accuracy-Assessment) 
   ← Supply chain forecasting project (real industry data)
 
 ---
@@ -189,4 +191,4 @@ engine = create_engine(
 ## 👤 Author
 **Gedela Sai Shashank**  
 Bachelor of Mathematics (Honors), ISI Bangalore  
-[LinkedIn](#) | [GitHub](#) | saishashank2020@gmail.com
+[LinkedIn](www.linkedin.com/in/sai-shashank-6a4010271) | [GitHub](https://github.com/SaiShashankG) | saishashank2020@gmail.com
