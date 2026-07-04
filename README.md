@@ -30,6 +30,7 @@ regression analysis, and forecasting.
 ---
 
 ## 🗂️ Project Structure
+
 ```
 olist-ecommerce-analytics/
 │
@@ -53,6 +54,7 @@ olist-ecommerce-analytics/
 ├── requirements.txt
 └── README.md
 ```
+
 ---
 
 ## 🔍 Key Findings
