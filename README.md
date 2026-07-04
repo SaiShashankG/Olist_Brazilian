@@ -32,19 +32,19 @@ regression analysis, and forecasting.
 ## 🗂️ Project Structure
 
 ```
-olist-ecommerce-analytics/
+olist-ecommerce-analytics
 │
-├── sql/
+├── sql
 │   ├── 01_top_categories_by_revenue.sql
 │   ├── 02_late_delivery_rate.sql
 │   ├── 03_repeat_purchase_rate.sql
 │   ├── 04_monthly_revenue_trend.sql
 │   └── 05_avg_delivery_time_by_state.sql
 │
-├── notebooks/
+├── notebooks
 │   └── olist_analysis.ipynb
 │
-├── plots/
+├── plots
 │   ├── seller_order_distribution.png
 │   ├── residuals_analysis.png
 │   ├── delivery_vs_review_scatter.png
@@ -186,6 +186,6 @@ engine = create_engine(
 
 ## 🔗 Related Projects
 - [Teleflex Medical Devices Forecast Accuracy Assessment](https://github.com/SaiShashankG/Forecast-Accuracy-Assessment) 
-  --> Supply chain forecasting project (real industry data)
+  > Supply chain forecasting project (Real Industry data)
 
 ---
