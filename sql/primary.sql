@@ -1,8 +1,17 @@
+-- ============================================================
+-- Project: Olist E-Commerce Analytics
+-- Author:  Gedela Sai Shashank
+-- Date:    June 2026
+-- Description: Business questions and data analysis queries
+--              for the Olist Brazilian E-Commerce dataset
+-- ============================================================
+
+
 CREATE DATABASE olist_db;
 USE olist_db;
 CREATE TABLE olist_customers(
     customer_id VARCHAR(50) PRIMARY KEY,
-    cutomer_unique_id VARCHAR(50),
+    customer_unique_id VARCHAR(50),
     customer_zip_code_prefix INT,
     customer_city VARCHAR(100),
     customer_state VARCHAR(2)
@@ -86,7 +95,7 @@ CREATE TABLE product_category_name_translation (
     product_category_name_english VARCHAR(100)
 );
 
--- Ee dataset lo yedho problem unnattu undhi, so, data ni manual ga enter chesaam
+-- Manual data entry required: CSV import failed, for this table due to encoding issues
 INSERT INTO product_category_name_translation (product_category_name, product_category_name_english) VALUES
 ('beleza_saude', 'health_beauty'),
 ('informatica_acessorios', 'computers_accessories'),
@@ -160,7 +169,7 @@ INSERT INTO product_category_name_translation (product_category_name, product_ca
 ('fashion_roupa_infanto_juvenil', 'fashion_childrens_clothes'),
 ('seguros_e_servicos', 'security_and_services');
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- =======================================================================================================================================================================================================
 ######### Now we are done with the Loading of the data ##################
 /*
 olist_customers(customer_id, customer_unique_id, customer_zip_code_prefix, customer_city, customer_state)
@@ -178,8 +187,8 @@ product_category_name_translation(product_category_name, product_category_name_e
 ALTER TABLE olist_products 
     RENAME COLUMN product_name_lenght TO product_name_length,
     RENAME COLUMN product_description_lenght TO product_description_length;
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-### Q1) what's the average review score by product category?
+-- =======================================================================================================================================================================================================
+-- Q1) what's the average review score by product category?
 
 SELECT p.product_category_name, ROUND(AVG(r.review_score),2) AS Average_Rating
 FROM olist_order_reviews r
@@ -188,11 +197,11 @@ JOIN olist_products p ON (p.product_id=i.product_id)
 GROUP BY p.product_category_name
 ORDER BY Average_Rating DESC;
 
-----------------------------------------------------------------------------------------------------------------
-### Q2) What is the average delivery time (in days) by customer state, only for delivered orders?
+-- =======================================================================================================================================================================================================
+-- Q2) What is the average delivery time (in days) by customer state, only for delivered orders?
 SELECT *
 FROM olist_orders;
-#Solution
+-- Solution
 SELECT c.customer_state,
 ROUND(AVG(DATEDIFF(o.order_delivered_customer_date, o.order_purchase_timestamp)),2) AS Average_delivery_days
 FROM olist_orders o
@@ -229,33 +238,33 @@ SE	21.46
 AC	21.00
 RR	29.34
 */
--------------------------------------------------------------------------------------------------------------------
-### Q3) What are the top 10 product categories by revenue?
+-- =======================================================================================================================================================================================================
+-- Q3) What are the top 10 product categories by revenue?
 SELECT *
 FROM olist_order_payments;
 SELECT *
 FROM olist_order_items;
 
-#Solution
-SELECT product_category_name_english, SUM(price) AS Revenue 
+-- Solution
+SELECT t.product_category_name_english, SUM(i.price) AS Revenue
 FROM olist_order_items i
-LEFT JOIN olist_order_payments p ON (p.order_id=i.order_id)
-LEFT JOIN olist_products pr ON(pr.product_id=i.product_id)
-LEFT JOIN product_category_name_translation t ON (t.product_category_name=pr.product_category_name)
-GROUP BY product_category_name_english
+JOIN olist_products pr ON pr.product_id = i.product_id
+JOIN product_category_name_translation t ON t.product_category_name = pr.product_category_name
+GROUP BY t.product_category_name_english
 ORDER BY Revenue DESC
 LIMIT 10;
+
 /*RESULT: Category of product - Revenue
-health_beauty	1297490.77
-watches_gifts	1253143.30
-bed_bath_table	1092551.02
-sports_leisure	1023996.34
-computers_accessories	942277.57
-furniture_decor	765093.89
-housewares	666587.00
-cool_stuff	662309.49
-auto	616752.51
-garden_tools	518217.54
+health_beauty	1258681.34
+watches_gifts	1205005.68
+bed_bath_table	1036988.68
+sports_leisure	988048.97
+computers_accessories	911954.32
+furniture_decor	729762.49
+cool_stuff	635290.85
+housewares	632248.66
+auto	592720.11
+garden_tools	485256.46
 */
 
 /*
@@ -270,7 +279,7 @@ Product Revenue ----> SUM(price)
 Total Order value ----> SUM(price+freight_value)
 Payment Collected ----> SUM(payment_value) 
 */
-### Let's compare all three
+-- Let's compare all three
 SELECT product_category_name_english, SUM(price) AS Revenue, SUM(freight_value) AS Total_freight,
 SUM(price+freight_value) AS Order_value, SUM(payment_value) AS Total_payment 
 FROM olist_order_items i
@@ -281,13 +290,13 @@ GROUP BY product_category_name_english
 ORDER BY Revenue DESC
 LIMIT 10;
 
----------------------------------------------------------------------------------------------------------------------
-### Q4) Which sellers have the highest late delivery rate?
+-- =======================================================================================================================================================================================================
+-- Q4) Which sellers have the highest late delivery rate?
 SELECT *
 FROM olist_orders
 WHERE order_estimated_delivery_date<order_delivered_customer_date;
 
-#Solution
+-- Solution
 SELECT seller_id, ROUND(SUM(CASE 
 WHEN order_delivered_customer_date>order_estimated_delivery_date THEN 1
 ELSE 0 END)*100/COUNT(*),2) AS Late_delivery_rate, COUNT(*) AS orders_count
@@ -310,14 +319,14 @@ ede0c03645598cdfc63ca8237acbe73d	32.00	50
 821fb029fc6e495ca4f08a35d51e53a5	31.03	29
 */
 
-------------------------------------------------------------------------------------------------------------------------------
-### Q5) Customer repeat purchase rate
+-- =======================================================================================================================================================================================================
+-- Q5) Customer repeat purchase rate
 SELECT COUNT(DISTINCT customer_id), COUNT(DISTINCT customer_unique_id)
 FROM olist_customers LIMIT 5;
 /*
 Repeat purchase: the customer placing more than one order overall (any products)?
 */
- #Solution
+-- Solution
 With percent_tab AS (
     SELECT customer_unique_id,
     CASE WHEN COUNT(DISTINCT o.order_id)>1 THEN 1
@@ -332,8 +341,8 @@ FROM percent_tab;
 /* RESULT:
 That means, 3.11% of the customers purchase again more than once.
 */
--------------------------------------------------------------------------------------------------------------------------------------
-### Q6) Revenue trend month over month
+-- =======================================================================================================================================================================================================
+-- Q6) Revenue trend month over month
 
 /*
 "Revenue is grouped by order_purchase_timestamp,
@@ -342,7 +351,7 @@ assuming payment occurs at the time of ordering
 Delivery date was not used since it would misrepresent
 the period revenue was actually generated."
 */
-# Solution
+-- Solution
 SELECT DATE_FORMAT(order_purchase_timestamp, '%Y-%m') AS Months, COALESCE(SUM(price),0) AS Revenue
 FROM olist_orders o
 LEFT JOIN olist_order_items it ON (it.order_id=o.order_id)
@@ -355,8 +364,8 @@ JOIN olist_order_items it ON (it.order_id=o.order_id)
 GROUP BY DATE_FORMAT(order_purchase_timestamp, '%Y-%m')
 ORDER BY Months;
 
-------------------------------------------------------------------------------------------------------------------------------------
-### Q) Regression Equation for: Does delivery time predict customer review scores?
+-- =======================================================================================================================================================================================================
+-- Q) Regression Equation for: Does delivery time predict customer review scores?
 
 SELECT o.order_id, DATEDIFF(order_delivered_customer_date,order_purchase_timestamp)
 AS delivery_days, re.review_score
@@ -370,9 +379,9 @@ WHEN order_delivered_customer_date>order_estimated_delivery_date THEN 1
 ELSE 0 END AS late_status
 FROM olist_orders
 LEFT JOIN  olist_order_reviews USING (order_id);
-=================================================================================================================
+-- =================================================================================================================
 
-## Fetching data for Time Series Analysis
+-- Fetching data for Time Series Analysis
 SELECT DATE_FORMAT(order_purchase_timestamp,'%Y-%m-01') AS ds,
 SUM(price) AS y
 FROM olist_orders o
@@ -381,9 +390,9 @@ WHERE order_status!='canceled'
 GROUP BY DATE_FORMAT(order_purchase_timestamp,'%Y-%m-01')
 ORDER BY ds;
 
-## Checking weather the months 2016-09 and 2018-09 (Extreme months) are complete or incomplete months
+-- Checking weather the months 2016-09 and 2018-09 (Extreme months) are complete or incomplete months
 SELECT MIN(order_purchase_timestamp) AS first_date,
 MAX(order_purchase_timestamp) AS last_date
 FROM olist_orders
 WHERE order_status!='canceled';
-=====================================================================================================================
+-- =====================================================================================================================
