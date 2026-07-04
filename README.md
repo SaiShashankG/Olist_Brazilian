@@ -186,11 +186,6 @@ engine = create_engine(
 
 ## 🔗 Related Projects
 - [Teleflex Medical Devices Forecast Accuracy Assessment](https://github.com/SaiShashankG/Forecast-Accuracy-Assessment) 
-  ← Supply chain forecasting project (real industry data)
+  --> Supply chain forecasting project (real industry data)
 
 ---
-
-## 👤 Author
-**Gedela Sai Shashank**  
-Bachelor of Mathematics (Honors), ISI Bangalore  
-[LinkedIn](www.linkedin.com/in/sai-shashank-6a4010271) | [GitHub](https://github.com/SaiShashankG) | saishashank2020@gmail.com
