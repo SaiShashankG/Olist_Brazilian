@@ -76,8 +76,8 @@ olist-ecommerce-analytics/
 |--------|-------|----------------|
 | Pearson Correlation | -0.334 | Moderate negative |
 | Spearman Correlation | -0.235 | Weak negative |
-| R² | 0.111 | Delivery explains 11.1% of satisfaction |
-| β₁ | -0.045 | Each extra day → -0.045 review score |
+| $R^2$ | 0.111 | Delivery explains 11.1% of satisfaction |
+| $\beta_1$ | -0.045 | Each extra day → -0.045 review score |
 | p-value | < 0.001 | Statistically significant |
 
 > **Key Insight:** Despite being statistically significant, 
