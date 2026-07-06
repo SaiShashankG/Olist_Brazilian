@@ -33,23 +33,38 @@ regression analysis, and forecasting.
 
 ```
 olist-ecommerce-analytics
+Olist Brazilian
 │
 ├── sql
-│   ├── 01_top_categories_by_revenue.sql
-│   ├── 02_late_delivery_rate.sql
-│   ├── 03_repeat_purchase_rate.sql
-│   ├── 04_monthly_revenue_trend.sql
-│   └── 05_avg_delivery_time_by_state.sql
+│   └── primary.sql
 │
 ├── notebooks
-│   └── olist_analysis.ipynb
+│   └── visualization.ipynb
 │
 ├── plots
-│   ├── seller_order_distribution.png
-│   ├── residuals_analysis.png
-│   ├── delivery_vs_review_scatter.png
-│   ├── prophet_forecast.png
-│   └── prophet_vs_arima_comparison.png
+│   ├── ACF and PACF - Monthly Revenue.png
+│   ├── Delivery Days Vs Review Score.png
+│   ├── Distribution of Order Counts (Sellers with < 100 Orders).png
+│   ├── Distribution of Orders per Seller-II.png
+│   ├── Distribution of Orders per Seller.png
+│   ├── Distribution of Residuals.png
+│   ├── Late Delivery Rate vs Order Count.png
+│   ├── Olist Monthly Revenue Forecast(Additive).png
+│   ├── Olist Monthly Revenue Forecast(Multiplicative).png
+│   ├── Prophet Revenue Forecast — Train vs Test Evaluation.png
+│   ├── Residuals Vs Fitted.png
+│   └── Revenue Forecast Comparison — Prophet vs ARIMA.png
+│
+├── data
+│   ├── olist_customers_dataset.csv
+│   ├── olist_geolocation_dataset.csv
+│   ├── olist_order_items_dataset.csv
+│   ├── olist_order_payments_dataset.csv
+│   ├── olist_order_reviews_dataset.csv
+│   ├── olist_orders_dataset.csv
+│   ├── olist_products_dataset.csv
+│   ├── olist_sellers_dataset.csv
+│   └── product_category_name_translation.csv
 │
 ├── requirements.txt
 └── README.md
