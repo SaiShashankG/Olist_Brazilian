@@ -183,7 +183,7 @@ engine = create_engine(
     "mysql+mysqlconnector://username:password@localhost/olist"
 )
 ```
-4. Run `notebooks/olist_analysis.ipynb` end to end
+4. Run `notebooks/visualization.ipynb` end to end
 
 ---
 
